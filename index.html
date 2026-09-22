@@ -87,7 +87,7 @@
     <div class="lab-layout">
       <div>
         <div class="viewer-wrap">
-          <canvas id="simCanvas" aria-label="Interactive AQA physics simulation"></canvas>
+          <canvas id="simCanvas" aria-label="Interactive AQA physics simulation"></canvas><canvas id="measureCanvas" aria-label="Simulation measurement overlay"></canvas>
           <div class="viewer-badges">
             <span class="pill" id="simSpec">AQA 3.6</span>
             <span class="pill" id="simState">Running</span>
@@ -98,13 +98,31 @@
           <button class="button" id="playPause">Pause</button>
           <button class="button" id="resetSim">Reset</button>
           <button class="button" id="slowMotion">Slow motion</button>
+          <button class="button" id="stepBack">− frame</button>
+          <button class="button" id="stepForward">+ frame</button>
           <button class="button" id="snapshotSim">Capture reading</button>
+        </div>
+        <div class="sim-transport panel">
+          <div><strong>Replay controls</strong><span id="simClock">0.00 s</span></div>
+          <button class="text-button" id="setSimStart">Set current setup as start</button>
+          <button class="text-button" id="replaySimStart">Replay from saved start</button>
+          <button class="text-button" id="lapSimTimer">Lap time</button>
+          <span id="simLaps" class="muted small"></span>
         </div>
         <div class="sim-visual-tools panel">
           <span class="small"><strong>Learning overlays</strong></span>
           <label><input type="checkbox" id="showLabels" checked> labels</label>
           <label><input type="checkbox" id="showVectors" checked> vectors</label>
           <label><input type="checkbox" id="showTrails" checked> motion trails</label>
+          <span class="muted small">vector length follows magnitude where the quantity varies</span>
+        </div>
+        <div class="measurement-toolbar panel">
+          <span class="small"><strong>Measurement tools</strong></span>
+          <button class="tool-chip active" data-measure-tool="off">Direct drag</button>
+          <button class="tool-chip" data-measure-tool="ruler">Ruler</button>
+          <button class="tool-chip" data-measure-tool="protractor">Protractor</button>
+          <button class="tool-chip" data-measure-tool="cursor">Graph cursor</button>
+          <span id="measureReadout" class="measure-readout">Drag the model directly.</span>
         </div>
         <div id="snapshotTray" class="snapshot-tray"></div>
         <p class="model-note">Models are schematic and deliberately rescaled for learning. Numerical readouts are intended to preserve the displayed physical relationships.</p>
@@ -131,6 +149,18 @@
         <article class="panel learning-box checkpoint-box"><h3>Quick check</h3><div id="simCheck"></div></article>
       </aside>
     </div>
+    <section class="sim-learning-workspace panel">
+      <div class="workspace-head">
+        <div><span class="eyebrow">Use the simulation to learn</span><h3>Simulation learning workspace</h3></div>
+        <div class="workspace-tabs">
+          <button class="tool-chip active" data-sim-workspace="graph">Live graph</button>
+          <button class="tool-chip" data-sim-workspace="calculate">Calculate</button>
+          <button class="tool-chip" data-sim-workspace="investigate">Investigate</button>
+          <button class="tool-chip" data-sim-workspace="predict">Predict</button>
+        </div>
+      </div>
+      <div id="simWorkspaceBody"></div>
+    </section>
   </section>
 
   <section class="view" id="view-formula">
@@ -289,7 +319,8 @@
 <script src="textbook-mechanics-v6.js?v=6"></script>
 <script src="textbook-thermal-v6.js?v=6"></script>
 <script src="textbook-visuals-v6.js?v=6"></script>
-<script src="app-v2.js?v=6"></script>
+<script src="app-v2.js?v=8"></script>
+<script src="sim-learning-v8.js?v=8"></script>
 <script src="mastery-core-v5.js?v=5"></script>
 <script src="mastery-practice-v5.js?v=5"></script>
 <script src="mastery-data-v5.js?v=5"></script>
