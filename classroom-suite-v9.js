@@ -99,6 +99,28 @@ const coreBank=[
  {topic:'kinetic-assumptions',type:'mcq',difficulty:3,q:'The factor 1/3 in kinetic theory arises from:',opts:['one third of molecules colliding','three-dimensional isotropic motion','three walls','three gas laws'],correct:1},
  {topic:'molecular-ke',type:'mcq',difficulty:3,q:'At the same temperature, two ideal gases have the same:',opts:['rms speed','molecular mass','mean translational KE per molecule','pressure in every container'],correct:2}
 ];
+function lessonBank(){
+ const answerPool=DATA.lessons.flatMap(l=>(l.retrieval||[]).map(q=>q[1])).filter(Boolean);
+ const bank=[];
+ DATA.lessons.forEach((l,li)=>{
+   if(l.check&&l.check.length>=4)bank.push({topic:l.id,type:'mcq',difficulty:2,q:l.check[0],opts:l.check[1],correct:l.check[2]});
+   const addSet=(set,diff,offset)=>{
+     (set||[]).forEach((q,qi)=>{
+       const distract=answerPool.filter(a=>a!==q[1]).filter((a,i)=>((i+li*3+qi*5+offset)%17)<3).slice(0,3);
+       let guard=0;
+       while(distract.length<3&&guard<answerPool.length*2){
+         const a=answerPool[(li*11+qi*7+distract.length*13+offset+guard)%answerPool.length];
+         if(a&&a!==q[1]&&!distract.includes(a))distract.push(a); guard++;
+       }
+       const opts=[q[1],...distract.slice(0,3)].sort(()=>Math.random()-.5);
+       bank.push({topic:l.id,type:'mcq',difficulty:diff,q:q[0],opts,correct:opts.indexOf(q[1])});
+     });
+   };
+   addSet(l.retrieval,1,0);
+   addSet(TEXTBOOK[l.id]?.retrieval,2,7);
+ });
+ return bank;
+}
 const dataQuestions=[
  {topic:'spring',type:'numeric',difficulty:3,q:'A T²–m graph has gradient 2.20 s² kg⁻¹. Calculate k.',answer:4*Math.PI*Math.PI/2.20,unit:'N m⁻¹',method:'k=4π²/gradient'},
  {topic:'pendulum',type:'numeric',difficulty:3,q:'A T²–L graph has gradient 4.12 s² m⁻¹. Calculate g.',answer:4*Math.PI*Math.PI/4.12,unit:'m s⁻²',method:'g=4π²/gradient'},
@@ -135,11 +157,11 @@ function renderSuite(){
 /* ---------- assessments ---------- */
 let test=null,timerHandle=null;
 function buildTest(count=12,topic='all',maxDiff=4){
- let bank=[...coreBank.filter(x=>(topic==='all'||x.topic===topic)&&x.difficulty<=maxDiff),...calcItems(topic).filter(x=>x.difficulty<=maxDiff),...dataQuestions.filter(x=>(topic==='all'||x.topic===topic)&&x.difficulty<=maxDiff)];
+ let bank=[...coreBank,...lessonBank(),...calcItems(),...dataQuestions].filter(x=>(topic==='all'||x.topic===topic)&&x.difficulty<=maxDiff);
  bank=bank.sort(()=>Math.random()-.5); return bank.slice(0,Math.min(count,bank.length));
 }
 function renderAssessment(){
- const b=$('#suiteBody'); if(!test){b.innerHTML=`<div class="suite-grid"><article class="panel pad"><span class="eyebrow">Full assessment mode</span><h3>Build a timed topic test</h3><label class="field"><span>Topic</span><select id="testTopic"><option value="all">Mixed 3.6</option>${DATA.lessons.map(l=>`<option value="${l.id}">${l.code} · ${safe(l.title)}</option>`).join('')}</select></label><label class="field"><span>Questions</span><input id="testCount" type="range" min="6" max="20" value="12"><output id="testCountOut">12</output></label><label class="field"><span>Maximum difficulty</span><select id="testDiff"><option value="1">1 · core recall</option><option value="2">2 · standard A-level</option><option value="3" selected>3 · multi-step/data</option><option value="4">4 · A* / unfamiliar</option></select></label><label class="field"><span>Time limit</span><select id="testTime"><option value="0">Untimed</option><option value="10">10 min</option><option value="20" selected>20 min</option><option value="30">30 min</option></select></label><button class="button primary" id="startTest">Start assessment</button></article><aside class="panel pad"><h3>Mastery rule</h3><p>A topic is marked <strong>secure</strong> only after at least 3 successful attempts in the latest 4 recorded attempts. One lucky correct answer is not enough.</p><p>Tests report results by specification topic and question difficulty.</p></aside></div>`;$('#testCount').oninput=e=>$('#testCountOut').textContent=e.target.value;$('#startTest').onclick=()=>startTest(+$('#testCount').value,$('#testTopic').value,+$('#testDiff').value,+$('#testTime').value);return}
+ const b=$('#suiteBody'); if(!test){b.innerHTML=`<div class="suite-grid"><article class="panel pad"><span class="eyebrow">Full assessment mode</span><h3>Build a timed topic test</h3><label class="field"><span>Topic</span><select id="testTopic"><option value="all">Mixed 3.6</option>${DATA.lessons.map(l=>`<option value="${l.id}">${l.code} · ${safe(l.title)}</option>`).join('')}</select></label><label class="field"><span>Questions (up to available bank)</span><input id="testCount" type="range" min="6" max="20" value="12"><output id="testCountOut">12</output></label><label class="field"><span>Maximum difficulty</span><select id="testDiff"><option value="1">1 · core recall</option><option value="2">2 · standard A-level</option><option value="3" selected>3 · multi-step/data</option><option value="4">4 · A* / unfamiliar</option></select></label><label class="field"><span>Time limit</span><select id="testTime"><option value="0">Untimed</option><option value="10">10 min</option><option value="20" selected>20 min</option><option value="30">30 min</option></select></label><button class="button primary" id="startTest">Start assessment</button></article><aside class="panel pad"><h3>Mastery rule</h3><p>A topic is marked <strong>secure</strong> only after at least 3 successful attempts in the latest 4 recorded attempts. One lucky correct answer is not enough.</p><p>Tests report results by specification topic and question difficulty.</p></aside></div>`;$('#testCount').oninput=e=>$('#testCountOut').textContent=e.target.value;$('#startTest').onclick=()=>startTest(+$('#testCount').value,$('#testTopic').value,+$('#testDiff').value,+$('#testTime').value);return}
  renderTest();
 }
 function startTest(count,topic,diff,mins){
@@ -209,7 +231,7 @@ function renderPapers(){
 }
 function paperTopicMatch(item,filter){if(filter==='all')return true;const l=DATA.lessons.find(x=>x.id===item.topic);return filter==='mechanics'?l?.code?.startsWith('3.6.1'):l?.code?.startsWith('3.6.2')}
 function makePaper(filter,count,diff){
- let bank=[...coreBank,...calcItems(),...dataQuestions].filter(q=>paperTopicMatch(q,filter)&&q.difficulty<=diff).sort(()=>Math.random()-.5).slice(0,count);suite.paperCounter++;saveSuite();
+ let bank=[...coreBank,...lessonBank(),...calcItems(),...dataQuestions].filter(q=>paperTopicMatch(q,filter)&&q.difficulty<=diff).sort(()=>Math.random()-.5).slice(0,count);suite.paperCounter++;saveSuite();
  const html=`<div class="paper-print"><h1>AQA 3.6 Further Mechanics & Thermal Physics</h1><p>Custom practice paper ${suite.paperCounter}</p>${bank.map((q,i)=>`<section><h3>${i+1}. ${safe(q.q)}</h3><div class="answer-lines"></div></section>`).join('')}<hr><h2>Answer / marking guide</h2>${bank.map((q,i)=>`<p><strong>${i+1}.</strong> ${q.type==='mcq'?safe(q.opts[q.correct]):safe(q.answerText||`${fmt(q.answer)} ${q.unit||''}`)}</p>`).join('')}</div>`;
  openPrint(html);
 }
@@ -253,7 +275,7 @@ const deps={
  'specific-heat':['internal-energy'],'continuous-flow':['specific-heat'],'latent-heat':['internal-energy'],'gas-laws':['absolute-zero'],'ideal-gas-moles':['gas-laws','absolute-zero'],'ideal-gas-molecules':['ideal-gas-moles'],'rp8-boyle':['gas-laws'],'rp8-charles':['gas-laws','absolute-zero'],'brownian-model':['gas-laws'],'kinetic-assumptions':['brownian-model'],'molecular-ke':['kinetic-assumptions','ideal-gas-molecules']
 };
 function renderSpecReport(){
- const completed=load('fm36-completed',[]),reviews=window.FM_MASTERY?.reviews?.()||[];$('#suiteBody').innerHTML=`<div class="panel pad"><span class="eyebrow">Specification completion report</span><h3>Where every AQA 3.6 lesson is taught, practised and assessed</h3><div class="spec-report-table"><table><thead><tr><th>Topic</th><th>Taught</th><th>Equations</th><th>Simulation</th><th>Assessment</th><th>Status</th></tr></thead><tbody>${DATA.lessons.map(l=>`<tr><td><strong>${safe(l.code)}</strong> ${safe(l.title)}</td><td>${TEXTBOOK[l.id]?'✓':'—'}</td><td>${(CALC[l.id]?.equations||[]).length}</td><td>${l.sim?safe(l.sim):'—'}</td><td>${[...coreBank,...calcItems(),...dataQuestions].filter(q=>q.topic===l.id).length} items</td><td>${completed.includes(l.id)?(secureStatus(l.id).secure?'Secure':'Complete / developing'):'Not complete'}</td></tr>`).join('')}</tbody></table></div><h3>Topic dependency map</h3><div class="dependency-grid">${DATA.lessons.map(l=>`<article><strong>${safe(l.title)}</strong><span>${(deps[l.id]||[]).length?'Prerequisite: '+(deps[l.id]||[]).map(lessonName).join(', '):'Starting topic'}</span></article>`).join('')}</div><h3>Spaced retrieval calendar</h3><div class="review-calendar">${reviews.slice().sort((a,b)=>a.due-b.due).slice(0,20).map(r=>`<div><strong>${safe(lessonName(r.topic))}</strong><span>${new Date(r.due).toLocaleDateString()}</span></div>`).join('')||'<p class="muted">No scheduled reviews yet.</p>'}</div></div>`;
+ const completed=load('fm36-completed',[]),reviews=window.FM_MASTERY?.reviews?.()||[];$('#suiteBody').innerHTML=`<div class="panel pad"><span class="eyebrow">Specification completion report</span><h3>Where every AQA 3.6 lesson is taught, practised and assessed</h3><div class="spec-report-table"><table><thead><tr><th>Topic</th><th>Taught</th><th>Equations</th><th>Simulation</th><th>Assessment</th><th>Status</th></tr></thead><tbody>${DATA.lessons.map(l=>`<tr><td><strong>${safe(l.code)}</strong> ${safe(l.title)}</td><td>${TEXTBOOK[l.id]?'✓':'—'}</td><td>${(CALC[l.id]?.equations||[]).length}</td><td>${l.sim?safe(l.sim):'—'}</td><td>${[...coreBank,...lessonBank(),...calcItems(),...dataQuestions].filter(q=>q.topic===l.id).length} items</td><td>${completed.includes(l.id)?(secureStatus(l.id).secure?'Secure':'Complete / developing'):'Not complete'}</td></tr>`).join('')}</tbody></table></div><h3>Topic dependency map</h3><div class="dependency-grid">${DATA.lessons.map(l=>`<article><strong>${safe(l.title)}</strong><span>${(deps[l.id]||[]).length?'Prerequisite: '+(deps[l.id]||[]).map(lessonName).join(', '):'Starting topic'}</span></article>`).join('')}</div><h3>Spaced retrieval calendar</h3><div class="review-calendar">${reviews.slice().sort((a,b)=>a.due-b.due).slice(0,20).map(r=>`<div><strong>${safe(lessonName(r.topic))}</strong><span>${new Date(r.due).toLocaleDateString()}</span></div>`).join('')||'<p class="muted">No scheduled reviews yet.</p>'}</div></div>`;
 }
 
 /* ---------- end-of-lesson mastery button ---------- */
