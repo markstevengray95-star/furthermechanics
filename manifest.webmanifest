@@ -1,9 +1,9 @@
 {
-  "name": "AQA Further Mechanics Learning Lab",
-  "short_name": "Further Mechanics",
+  "name": "AQA Further Mechanics & Thermal Physics Learning Lab",
+  "short_name": "AQA Physics 3.6",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#07111f",
   "theme_color": "#07111f",
-  "description": "Interactive AQA A-level Physics Further Mechanics learning lab."
+  "description": "Interactive AQA A-level Physics 7408 Section 3.6 Further Mechanics and Thermal Physics learning lab."
 }
