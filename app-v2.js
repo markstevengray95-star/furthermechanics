@@ -342,6 +342,7 @@ function renderSim(){
   const q=s.check;$('#simCheck').innerHTML='<p>'+q[0]+'</p><div class="quick-options">'+q[1].map((x,i)=>'<button class="quick-option" data-quick="'+i+'">'+x+'</button>').join('')+'</div><div class="answer-reveal" id="quickExplain">'+q[3]+'</div>';
   $$('[data-quick]').forEach(b=>b.addEventListener('click',()=>{const i=Number(b.dataset.quick);$$('[data-quick]').forEach(x=>x.disabled=true);b.classList.add(i===q[2]?'correct':'wrong');$$('[data-quick]')[q[2]].classList.add('correct');$('#quickExplain').classList.add('visible');}));
   renderSimTabs();renderSnapshotTray();updateReadout();
+  window.dispatchEvent(new CustomEvent('fm-sim-switched',{detail:{id:activeSim,title:s.title}}));
 }
 function updateControlOutput(key){
   const c=simDefinitions[activeSim].controls.find(x=>x.k===key), out=$('[data-output="'+key+'"]');
@@ -575,7 +576,41 @@ function handleDrag(e){
   else if(activeSim==='idealGas'){const frac=clamp(1-(y-90)/(h*.6),.05,1),V=.001+frac*.009;setSimValue('volume',Math.round(V*10000)/10000);}
   else if(activeSim==='heatingCurve'){const E=clamp((x-55)/(w-110)*100,0,100);setSimValue('energy',Math.round(E));}
   else if(activeSim==='brownian'){brownianTracer.x=clamp((x-55)/(w-110),.05,.95);brownianTracer.y=clamp((y-40)/(h-90),.05,.95);brownianTracer.vx=0;brownianTracer.vy=0;}
+  else if(activeSim==='flowHeating'){const flow=clamp(.005+(x/w)*.055,.005,.06);setSimValue('flow',Math.round(flow*1000)/1000);}
+  else if(activeSim==='calorimetry'){const power=clamp(20+(1-y/h)*180,20,200);setSimValue('power',Math.round(power/5)*5);}
+  else if(activeSim==='thermalParticles'){const temp=clamp(180+(1-y/h)*320,180,500);setSimValue('temp',Math.round(temp/5)*5);}
+  else if(activeSim==='charlesPractical'){const temp=clamp(260+(x/w)*160,260,420);setSimValue('temp',Math.round(temp/5)*5);}
+  else if(activeSim==='kineticTheory'){const temp=clamp(180+(x/w)*720,180,900);setSimValue('temp',Math.round(temp/10)*10);}
 }
+
+function setSimulationRunning(value){
+  running=Boolean(value);
+  $('#playPause').textContent=running?'Pause':'Play';
+  $('#simState').textContent=running?(slow?'Slow motion':'Running'):'Paused';
+}
+function stepSimulation(dt){
+  running=false;simTime=Math.max(0,simTime+dt);drawSim();updateReadout();setSimulationRunning(false);
+}
+function setSimulationTime(t){
+  running=false;simTime=Math.max(0,Number(t)||0);drawSim();updateReadout();setSimulationRunning(false);
+}
+function setSimulationValues(values){
+  Object.entries(values||{}).forEach(([k,v])=>setSimValue(k,Number(v)));
+  drawSim();updateReadout();
+}
+function simulationState(){
+  return {id:activeSim,title:simDefinitions[activeSim]?.title||activeSim,time:simTime,running,slow,values:{...simVals},readout:currentReadoutText(),definition:simDefinitions[activeSim]};
+}
+window.FM_SIM={
+  getState:simulationState,
+  setValue:setSimValue,
+  setValues:setSimulationValues,
+  setRunning:setSimulationRunning,
+  step:stepSimulation,
+  setTime:setSimulationTime,
+  reset:function(){simTime=0;brownianTracer={x:.5,y:.5,vx:0,vy:0};Object.keys(trailPoints).forEach(k=>trailPoints[k]=[]);drawSim();updateReadout();},
+  getCanvas:function(){return canvas;}
+};
 
 /* Formula coach */
 const formulas=[
