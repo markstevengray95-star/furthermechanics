@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#07111f">
+  <title>AQA Further Mechanics Learning Lab</title>
+  <meta name="description" content="Interactive AQA A-level Physics 7408 Further Mechanics learning lab for circular motion, SHM, damping and resonance.">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="stylesheet" href="styles.css?v=1">
+  <link rel="stylesheet" href="further.css?v=1">
+</head>
+<body>
+<header class="topbar">
+  <div class="wrap topbar-inner">
+    <div>
+      <div class="brand">Further Mechanics Learning Lab</div>
+      <div class="muted small">AQA A-level Physics 7408 · Section 3.6.1 · Periodic motion</div>
+    </div>
+    <div class="pills">
+      <span class="pill">AQA aligned</span>
+      <span class="pill">11 sequenced lessons</span>
+      <span class="pill">6 interactive models</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap main">
+  <section class="hero grid">
+    <article class="panel hero-copy">
+      <span class="eyebrow">AQA 3.6.1 · Further mechanics</span>
+      <h1>See the motion, connect the graphs, then solve the physics.</h1>
+      <p>Work through circular motion, simple harmonic motion, mass–spring and pendulum systems, energy, damping, forced vibrations and resonance. Each lesson follows the same guided structure as the Mechanics app: retrieval, objectives, teaching, worked examples, activities, knowledge checks and an exit ticket.</p>
+      <div class="hero-actions">
+        <button class="button primary" data-jump="course">Start full lesson sequence</button>
+        <button class="button" data-jump="lab">Open simulation lab</button>
+      </div>
+    </article>
+
+    <aside class="panel progress-card">
+      <div class="progress-head"><strong>Topic progress</strong><span id="progressText">0 / 11 complete</span></div>
+      <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+      <div class="stat-grid">
+        <div><strong>11</strong><span>sequenced lessons</span></div>
+        <div><strong>6</strong><span>interactive models</span></div>
+        <div><strong>12</strong><span>formula tools</span></div>
+        <div><strong>1</strong><span>required practical</span></div>
+      </div>
+      <button class="text-button" id="resetProgress">Reset progress</button>
+    </aside>
+  </section>
+
+  <nav class="main-nav" aria-label="Main navigation">
+    <button class="nav-button active" data-view="course">Guided course</button>
+    <button class="nav-button" data-view="lab">Simulation lab</button>
+    <button class="nav-button" data-view="formula">Formula coach</button>
+    <button class="nav-button" data-view="practical">Required practical 7</button>
+    <button class="nav-button" data-view="exam">Exam practice</button>
+    <button class="nav-button" data-view="spec">AQA checklist</button>
+  </nav>
+
+  <section class="view active-view" id="view-course">
+    <div class="section-head">
+      <div><span class="eyebrow">Recommended route</span><h2>Learn Further Mechanics in specification order</h2></div>
+      <p class="muted">Move through the chunks in each lesson, answer on the page, use the model where linked, and mark the lesson complete.</p>
+    </div>
+    <div class="course-layout">
+      <div class="course-list" id="courseList"></div>
+      <article class="panel lesson-panel" id="lessonPanel"></article>
+    </div>
+  </section>
+
+  <section class="view" id="view-lab">
+    <div class="section-head">
+      <div><span class="eyebrow">Interactive learning</span><h2>Further mechanics simulation lab</h2></div>
+      <p class="muted">Drag, change variables and connect the animation to equations, vectors, graphs and exam language.</p>
+    </div>
+    <div class="sim-tabs" id="simTabs"></div>
+    <div class="lab-layout">
+      <div>
+        <div class="viewer-wrap">
+          <canvas id="simCanvas" aria-label="Interactive further mechanics simulation"></canvas>
+          <div class="viewer-badges">
+            <span class="pill" id="simSpec">AQA 3.6.1</span>
+            <span class="pill" id="simState">Running</span>
+          </div>
+        </div>
+        <div class="viewer-controls">
+          <button class="button" id="playPause">Pause</button>
+          <button class="button" id="resetSim">Reset</button>
+          <button class="button" id="slowMotion">Slow motion</button>
+        </div>
+        <p class="model-note">Models are schematic teaching representations. Scales are adjusted to make the relationships clear.</p>
+      </div>
+      <aside class="lab-side">
+        <article class="panel sim-heading">
+          <span class="eyebrow" id="simCode"></span>
+          <h2 id="simTitle"></h2>
+          <p class="muted" id="simSubtitle"></p>
+        </article>
+        <div class="control-stack" id="simControls"></div>
+        <div class="equation" id="simReadout"></div>
+        <article class="panel learning-box simple-box"><h3>In simple words</h3><div id="simpleExplain"></div></article>
+        <article class="panel learning-box exam-box"><h3>Say it like this in an exam</h3><div id="examExplain"></div></article>
+        <article class="panel learning-box mistake-box"><h3>Common mistake</h3><div id="mistakeExplain"></div></article>
+        <article class="panel learning-box checkpoint-box"><h3>Quick check</h3><div id="simCheck"></div></article>
+      </aside>
+    </div>
+  </section>
+
+  <section class="view" id="view-formula">
+    <div class="section-head">
+      <div><span class="eyebrow">Calculation support</span><h2>Formula coach</h2></div>
+      <p class="muted">Choose a relationship, enter values and see the substitution, units and final result.</p>
+    </div>
+    <div class="formula-layout">
+      <article class="panel pad">
+        <label class="field"><span>Choose calculation</span><select id="formulaSelect"></select></label>
+        <div class="control-stack" id="formulaInputs"></div>
+      </article>
+      <article class="panel pad">
+        <h3>Worked result</h3>
+        <div class="worked" id="formulaWorking"></div>
+      </article>
+    </div>
+    <div class="formula-cards" id="formulaCards"></div>
+  </section>
+
+  <section class="view" id="view-practical">
+    <div class="section-head">
+      <div><span class="eyebrow">AQA practical skills</span><h2>Required practical 7 · Simple harmonic motion</h2></div>
+      <p class="muted">Investigate a mass–spring system and a simple pendulum, collect repeated data and use linearised graphs.</p>
+    </div>
+    <div class="practical-switch">
+      <button class="button primary" data-practical="spring">Mass–spring</button>
+      <button class="button" data-practical="pendulum">Simple pendulum</button>
+    </div>
+
+    <div id="practicalSpring">
+      <div class="practical-grid">
+        <article class="panel pad">
+          <h3>Mass–spring investigation</h3>
+          <p class="muted small">Measure the time for 10 oscillations, calculate T, then compare T² with mass.</p>
+          <label class="field"><span>Mass</span><input type="range" id="springMass" min="0.10" max="0.80" value="0.30" step="0.05"><output id="springMassOut">0.30 kg</output></label>
+          <label class="field"><span>Spring constant</span><input type="range" id="springK" min="8" max="40" value="20" step="1"><output id="springKOut">20 N m⁻¹</output></label>
+          <div class="practical-rig spring-rig"><div class="spring-line" id="springLine"></div><div class="mass-block" id="springBlock">0.30 kg</div></div>
+          <div class="button-row">
+            <button class="button primary" id="takeSpringReading">Take reading</button>
+            <button class="button" id="clearSpringData">Clear data</button>
+          </div>
+        </article>
+        <article class="panel pad">
+          <h3>Results</h3>
+          <div class="table-scroll"><table class="data-table"><thead><tr><th>m / kg</th><th>10T / s</th><th>T / s</th><th>T² / s²</th></tr></thead><tbody id="springRows"></tbody></table></div>
+          <div class="equation" id="springSummary">Collect at least three readings.</div>
+          <div class="mini-graph"><canvas id="springGraph"></canvas></div>
+        </article>
+      </div>
+    </div>
+
+    <div id="practicalPendulum" class="hidden">
+      <div class="practical-grid">
+        <article class="panel pad">
+          <h3>Simple pendulum investigation</h3>
+          <p class="muted small">Measure the time for 10 oscillations, calculate T, then compare T² with length.</p>
+          <label class="field"><span>Pendulum length</span><input type="range" id="pendLength" min="0.20" max="1.20" value="0.60" step="0.05"><output id="pendLengthOut">0.60 m</output></label>
+          <label class="field"><span>Release angle</span><input type="range" id="pendAngle" min="3" max="20" value="8" step="1"><output id="pendAngleOut">8°</output></label>
+          <div class="practical-rig pend-rig"><div class="pend-string" id="pendString"></div><div class="pend-bob" id="pendBob"></div></div>
+          <div class="button-row">
+            <button class="button primary" id="takePendReading">Take reading</button>
+            <button class="button" id="clearPendData">Clear data</button>
+          </div>
+        </article>
+        <article class="panel pad">
+          <h3>Results</h3>
+          <div class="table-scroll"><table class="data-table"><thead><tr><th>L / m</th><th>10T / s</th><th>T / s</th><th>T² / s²</th></tr></thead><tbody id="pendRows"></tbody></table></div>
+          <div class="equation" id="pendSummary">Collect at least three readings.</div>
+          <div class="mini-graph"><canvas id="pendGraph"></canvas></div>
+        </article>
+      </div>
+    </div>
+    <div class="safety-note"><strong>Virtual practical.</strong> For the real investigation, secure the stand, keep the oscillating mass clear of people, use small pendulum angles, take repeats and time several oscillations to reduce percentage uncertainty.</div>
+  </section>
+
+  <section class="view" id="view-exam">
+    <div class="section-head">
+      <div><span class="eyebrow">Retrieval + exam language</span><h2>Exam practice</h2></div>
+      <p class="muted">Mixed calculations, graph interpretation, explanations and common misconceptions.</p>
+    </div>
+    <div class="quiz-layout">
+      <aside class="panel quiz-stats pad">
+        <div class="progress-head"><span>Question</span><strong id="quizProgress">1 / 20</strong></div>
+        <div class="progress-track"><div class="progress-fill" id="quizProgressFill"></div></div>
+        <div class="stat-grid">
+          <div><strong id="quizScore">0</strong><span>correct</span></div>
+          <div><strong id="quizStreak">0</strong><span>streak</span></div>
+        </div>
+        <button class="button" id="restartQuiz">Restart practice</button>
+      </aside>
+      <article class="panel quiz-main pad">
+        <span class="eyebrow" id="quizSpec"></span>
+        <h3 id="quizQuestion"></h3>
+        <button class="text-button" id="showHint">Show hint</button>
+        <div class="hint hidden" id="quizHint"></div>
+        <div class="choice-list" id="quizChoices"></div>
+        <div class="feedback hidden" id="quizFeedback"></div>
+        <button class="button primary hidden" id="nextQuestion">Next question</button>
+      </article>
+    </div>
+  </section>
+
+  <section class="view" id="view-spec">
+    <div class="section-head">
+      <div><span class="eyebrow">Specification coverage</span><h2>AQA 7408 section 3.6.1 checklist</h2></div>
+      <p class="muted">Use this revision map to check every Further Mechanics statement and jump to its lesson.</p>
+    </div>
+    <div class="spec-grid" id="specGrid"></div>
+  </section>
+</main>
+
+<footer class="wrap footer">Built as an educational learning model for AQA A-level Physics 7408. Further Mechanics here covers AQA section 3.6.1 Periodic Motion.</footer>
+<script src="app.js?v=1"></script>
+</body>
+</html>
