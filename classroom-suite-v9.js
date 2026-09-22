@@ -2,11 +2,13 @@
 'use strict';
 const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>Array.from(r.querySelectorAll(s));
 const DATA=window.FM_DATA||{lessons:[]}, CALC=window.FM_CALC||{}, TEXTBOOK=window.FM_TEXTBOOK||{};
-const SUITE_KEY='fm-classroom-v9', PROFILE_KEY='fm-profiles-v9', ACTIVE_KEY='fm-active-profile-v9';
-const knownKeys=['fm36-completed','fm-mastery-v5','fm-retrieval-v5','fm-teacher-v5','fm-access-v5','fm-sim-investigations-v8','fm-student-work-v9','fm-teacher-notes-v9'];
+const LEGACY_SUITE_KEY='fm-classroom-v9', SUITE_KEY='fm-classroom-v10', PROFILE_KEY='fm-profiles-v9', ACTIVE_KEY='fm-active-profile-v9';
+const knownKeys=['fm36-completed','fm-mastery-v5','fm-retrieval-v5','fm-teacher-v5','fm-access-v5','fm-sim-investigations-v8'];
 const load=(k,f)=>{try{return JSON.parse(localStorage.getItem(k))??f}catch{return f}}, save=(k,v)=>localStorage.setItem(k,JSON.stringify(v));
-let suite=Object.assign({masteryHistory:{},teacherNotes:{},tests:[],bugReports:[],paperCounter:0},load(SUITE_KEY,{}));
 let profiles=load(PROFILE_KEY,[{id:'default',name:'Student 1',snapshot:{}}]),activeId=localStorage.getItem(ACTIVE_KEY)||profiles[0]?.id||'default';
+const blankSuite=()=>({masteryHistory:{},teacherNotes:{},tests:[],bugReports:[],paperCounter:0});
+let suite=Object.assign(blankSuite(),load(SUITE_KEY+':'+activeId,load(LEGACY_SUITE_KEY,{})));
+const saveSuite=()=>save(SUITE_KEY+':'+activeId,suite);
 const activeProfile=()=>profiles.find(p=>p.id===activeId)||profiles[0];
 const lessonName=id=>DATA.lessons.find(l=>l.id===id)?.title||id;
 const currentLesson=()=>window.FM_APP?.getProgress?.().activeLesson||DATA.lessons[0]?.id;
@@ -47,16 +49,16 @@ const workKey=()=>`fm-student-work-v9:${activeId}`, getWork=()=>load(workKey(),{
 function contextKey(el){
  const lid=currentLesson()||'none', mode=$('#masteryMode')?.value||'none', view=$('.view.active-view')?.id||'view';
  const root=el.closest('.chunk,.workspace-card,.panel')||document;
- const fields=$$('textarea,input[type="text"]',root); const idx=Math.max(0,fields.indexOf(el));
+ const fields=$('textarea,input[type="text"],input[type="number"],input[type="checkbox"]',root); const idx=Math.max(0,fields.indexOf(el));
  return `${lid}|${mode}|${view}|${root.className||root.id}|${idx}`;
 }
 let saveTimer;
 function initAutosave(){
  document.addEventListener('input',e=>{
-   const el=e.target;if(!(el.matches('textarea')||el.matches('input[type="text"]')))return;
-   clearTimeout(saveTimer);saveTimer=setTimeout(()=>{const w=getWork();w[contextKey(el)]=el.value;setWork(w);const st=$('#autosaveStatus');if(st){st.textContent='Saved';setTimeout(()=>st.textContent='Autosave on',900)}},250);
+   const el=e.target;if(!(el.matches('textarea')||el.matches('input[type="text"]')||el.matches('input[type="number"]')||el.matches('input[type="checkbox"]')))return;
+   clearTimeout(saveTimer);saveTimer=setTimeout(()=>{const w=getWork();w[contextKey(el)]=el.type==='checkbox'?{checked:el.checked}:{value:el.value};setWork(w);const st=$('#autosaveStatus');if(st){st.textContent='Saved';setTimeout(()=>st.textContent='Autosave on',900)}},250);
  });
- const restore=()=>{const w=getWork();$$('textarea,input[type="text"]').forEach(el=>{const k=contextKey(el);if(w[k]!=null&&!el.value)el.value=w[k]})};
+ const restore=()=>{const w=getWork();$('textarea,input[type="text"],input[type="number"],input[type="checkbox"]').forEach(el=>{const k=contextKey(el),v=w[k];if(v==null)return;if(el.type==='checkbox'&&typeof v==='object')el.checked=!!v.checked;else if(typeof v==='object'&&v.value!=null&&!el.value)el.value=v.value;else if(typeof v==='string'&&!el.value)el.value=v})};
  new MutationObserver(()=>setTimeout(restore,20)).observe(document.body,{childList:true,subtree:true});restore();
 }
 
@@ -65,7 +67,7 @@ function initMasteryWrapper(){
  if(!window.FM_MASTERY?.result)return; const original=window.FM_MASTERY.result;
  window.FM_MASTERY.result=function(skill,topic,ok,label,xp){
    const key=topic||skill; suite.masteryHistory[key]=suite.masteryHistory[key]||[];suite.masteryHistory[key].push({ok:!!ok,time:Date.now(),skill,label});suite.masteryHistory[key]=suite.masteryHistory[key].slice(-6);
-   save(SUITE_KEY,suite); original(skill,topic,ok,label,xp); maybeIntervene(key);
+   saveSuite(); original(skill,topic,ok,label,xp); maybeIntervene(key);
  };
 }
 function secureStatus(key){
@@ -101,7 +103,7 @@ const dataQuestions=[
  {topic:'spring',type:'numeric',difficulty:3,q:'A T²–m graph has gradient 2.20 s² kg⁻¹. Calculate k.',answer:4*Math.PI*Math.PI/2.20,unit:'N m⁻¹',method:'k=4π²/gradient'},
  {topic:'pendulum',type:'numeric',difficulty:3,q:'A T²–L graph has gradient 4.12 s² m⁻¹. Calculate g.',answer:4*Math.PI*Math.PI/4.12,unit:'m s⁻²',method:'g=4π²/gradient'},
  {topic:'specific-heat',type:'numeric',difficulty:3,q:'A 60 W heater warms 0.50 kg by 18 K in 240 s. Ignore losses. Calculate c.',answer:60*240/(.5*18),unit:'J kg⁻¹ K⁻¹',method:'Pt=mcΔT'},
- {topic:'boylePractical',type:'numeric',difficulty:3,q:'For a gas, p=150 kPa at V=56 cm³. Predict p at 42 cm³ if T is constant.',answer:150*56/42,unit:'kPa',method:'p₁V₁=p₂V₂'},
+ {topic:'rp8-boyle',type:'numeric',difficulty:3,q:'For a gas, p=150 kPa at V=56 cm³. Predict p at 42 cm³ if T is constant.',answer:150*56/42,unit:'kPa',method:'p₁V₁=p₂V₂'},
  {topic:'kinetic-assumptions',type:'numeric',difficulty:4,q:'A gas has density 1.15 kg m⁻³ and rms speed 480 m s⁻¹. Calculate p.',answer:1.15*480*480/3,unit:'Pa',method:'p=(1/3)ρcᵣₘₛ²'}
 ];
 function diagnose(user,ans){
@@ -155,7 +157,7 @@ function renderTest(){
 }
 function captureTestAnswer(){const el=$('#testNumeric');if(el)test.answers[test.index]=el.value}
 function finishTest(){
- if(!test||test.finished)return;clearInterval(timerHandle);test.finished=true;test.results=test.items.map((q,i)=>{const u=test.answers[i];let ok=false;if(q.type==='mcq')ok=+u===q.correct;else{const n=+u;ok=Number.isFinite(n)&&Math.abs(n-q.answer)<=Math.max(Math.abs(q.answer)*.025,1e-10)};window.FM_MASTERY?.result?.(q.type==='numeric'?'calculations':'explanations',q.topic,ok,'assessment',ok?8:1);return{q,u,ok,diagnosis:q.type==='numeric'&&!ok?diagnose(+u,q.answer):''}});suite.tests.unshift({date:new Date().toISOString(),profile:activeId,results:test.results.map(r=>({topic:r.q.topic,ok:r.ok,difficulty:r.q.difficulty}))});suite.tests=suite.tests.slice(0,20);save(SUITE_KEY,suite);renderTestResults();
+ if(!test||test.finished)return;clearInterval(timerHandle);test.finished=true;test.results=test.items.map((q,i)=>{const u=test.answers[i];let ok=false;if(q.type==='mcq')ok=+u===q.correct;else{const n=+u;ok=Number.isFinite(n)&&Math.abs(n-q.answer)<=Math.max(Math.abs(q.answer)*.025,1e-10)};window.FM_MASTERY?.result?.(q.type==='numeric'?'calculations':'explanations',q.topic,ok,'assessment',ok?8:1);return{q,u,ok,diagnosis:q.type==='numeric'&&!ok?diagnose(+u,q.answer):''}});suite.tests.unshift({date:new Date().toISOString(),profile:activeId,results:test.results.map(r=>({topic:r.q.topic,ok:r.ok,difficulty:r.q.difficulty}))});suite.tests=suite.tests.slice(0,20);saveSuite();renderTestResults();
 }
 function renderTestResults(){
  const b=$('#suiteBody'),rs=test.results,score=rs.filter(r=>r.ok).length,by={};rs.forEach(r=>{by[r.q.topic]=by[r.q.topic]||[0,0];by[r.q.topic][1]++;if(r.ok)by[r.q.topic][0]++});
@@ -207,7 +209,7 @@ function renderPapers(){
 }
 function paperTopicMatch(item,filter){if(filter==='all')return true;const l=DATA.lessons.find(x=>x.id===item.topic);return filter==='mechanics'?l?.code?.startsWith('3.6.1'):l?.code?.startsWith('3.6.2')}
 function makePaper(filter,count,diff){
- let bank=[...coreBank,...calcItems(),...dataQuestions].filter(q=>paperTopicMatch(q,filter)&&q.difficulty<=diff).sort(()=>Math.random()-.5).slice(0,count);suite.paperCounter++;save(SUITE_KEY,suite);
+ let bank=[...coreBank,...calcItems(),...dataQuestions].filter(q=>paperTopicMatch(q,filter)&&q.difficulty<=diff).sort(()=>Math.random()-.5).slice(0,count);suite.paperCounter++;saveSuite();
  const html=`<div class="paper-print"><h1>AQA 3.6 Further Mechanics & Thermal Physics</h1><p>Custom practice paper ${suite.paperCounter}</p>${bank.map((q,i)=>`<section><h3>${i+1}. ${safe(q.q)}</h3><div class="answer-lines"></div></section>`).join('')}<hr><h2>Answer / marking guide</h2>${bank.map((q,i)=>`<p><strong>${i+1}.</strong> ${q.type==='mcq'?safe(q.opts[q.correct]):safe(q.answerText||`${fmt(q.answer)} ${q.unit||''}`)}</p>`).join('')}</div>`;
  openPrint(html);
 }
@@ -223,7 +225,7 @@ function openPrint(html){
 function renderTeacherTools(){
  const id=currentLesson(),note=suite.teacherNotes[id]||'';
  $('#suiteBody').innerHTML=`<div class="suite-grid"><article class="panel pad"><span class="eyebrow">Teacher notes</span><h3>${safe(lessonName(id))}</h3><textarea id="teacherNoteText" class="student-answer tall-answer" placeholder="Class-specific prompts, examples, misconceptions, homework...">${safe(note)}</textarea><button class="button primary" id="saveTeacherNote">Save note</button></article><article class="panel pad"><span class="eyebrow">Freeze & annotate</span><h3>Simulation teaching tools</h3><p>Open the Simulation Lab and use Freeze & annotate to draw directly over the paused model. Fullscreen classroom mode enlarges the lab for projection.</p><div class="button-row"><button class="button" id="openSimTeach">Open simulations</button><button class="button" id="reportBug">Create bug report file</button></div></article></div>`;
- $('#saveTeacherNote').onclick=()=>{suite.teacherNotes[id]=$('#teacherNoteText').value;save(SUITE_KEY,suite);$('#saveTeacherNote').textContent='Saved ✓';setTimeout(()=>$('#saveTeacherNote').textContent='Save note',800)};
+ $('#saveTeacherNote').onclick=()=>{suite.teacherNotes[id]=$('#teacherNoteText').value;saveSuite();$('#saveTeacherNote').textContent='Saved ✓';setTimeout(()=>$('#saveTeacherNote').textContent='Save note',800)};
  $('#openSimTeach').onclick=()=>window.FM_APP?.openView?.('lab');
  $('#reportBug').onclick=createBugReport;
 }
@@ -238,11 +240,11 @@ function exportProgressJSON(){
  snapshotCurrentProfile();const payload={version:9,profile:activeProfile(),suite,exported:new Date().toISOString()};download('further-mechanics-progress.json',JSON.stringify(payload,null,2));
 }
 function renderProgressTools(){
- $('#suiteBody').innerHTML=`<div class="suite-grid"><article class="panel pad"><span class="eyebrow">Progress export</span><h3>Move or archive student progress</h3><div class="button-row"><button class="button" id="exportCSV">Export CSV</button><button class="button" id="exportJSON">Export progress file</button><button class="button" id="printProgress">Print / Save PDF report</button></div><label class="field"><span>Import progress file</span><input id="importProgress" type="file" accept=".json,application/json"></label></article><article class="panel pad"><h3>Mastery security</h3><div class="heat-grid">${DATA.lessons.slice(0,12).map(l=>{const s=secureStatus(l.id);return`<div class="heat-cell ${s.secure?'secure-cell':''}"><strong>${safe(l.title)}</strong><span>${s.secure?'Secure':`${s.wins}/${s.attempts} recent success`}</span></div>`}).join('')}</div></article></div>`;
+ $('#suiteBody').innerHTML=`<div class="suite-grid"><article class="panel pad"><span class="eyebrow">Progress export</span><h3>Move or archive student progress</h3><div class="button-row"><button class="button" id="exportCSV">Export CSV</button><button class="button" id="exportJSON">Export progress file</button><button class="button" id="printProgress">Print / Save PDF report</button></div><label class="field"><span>Import progress file</span><input id="importProgress" type="file" accept=".json,application/json"></label></article><article class="panel pad"><h3>Mastery security</h3><div class="heat-grid">${DATA.lessons.map(l=>{const s=secureStatus(l.id);return`<div class="heat-cell ${s.secure?'secure-cell':''}"><strong>${safe(l.title)}</strong><span>${s.secure?'Secure':`${s.wins}/${s.attempts} recent success`}</span></div>`}).join('')}</div></article></div>`;
  $('#exportCSV').onclick=()=>download('further-mechanics-progress.csv',progressCSV(),'text/csv');
  $('#exportJSON').onclick=exportProgressJSON;
  $('#printProgress').onclick=()=>openPrint(`<div class="paper-print"><h1>Further Mechanics & Thermal Physics Progress</h1><p>${safe(activeProfile()?.name||'Student')}</p><pre class="report-pre">${safe(progressCSV())}</pre></div>`);
- $('#importProgress').onchange=e=>{const file=e.target.files[0];if(!file)return;const r=new FileReader();r.onload=()=>{try{const data=JSON.parse(r.result);if(data.profile?.snapshot){snapshotCurrentProfile();const p=activeProfile();p.snapshot=data.profile.snapshot;save(PROFILE_KEY,profiles);suite=data.suite||suite;save(SUITE_KEY,suite);restoreProfile(activeId)}else alert('Progress file not recognised.')}catch{alert('Could not read progress file.')}};r.readAsText(file)};
+ $('#importProgress').onchange=e=>{const file=e.target.files[0];if(!file)return;const r=new FileReader();r.onload=()=>{try{const data=JSON.parse(r.result);if(data.profile?.snapshot){snapshotCurrentProfile();const p=activeProfile();p.snapshot=data.profile.snapshot;save(PROFILE_KEY,profiles);suite=data.suite||suite;saveSuite();restoreProfile(activeId)}else alert('Progress file not recognised.')}catch{alert('Could not read progress file.')}};r.readAsText(file)};
 }
 
 /* ---------- spec report + dependencies + retrieval calendar ---------- */
