@@ -430,6 +430,7 @@ function drawSpringCoil(cx,top,bottom,width=23,turns=18){
   ctx.strokeStyle='rgba(255,255,255,.35)';ctx.lineWidth=1.3;ctx.stroke();
 }
 function particleBox(x,y,w,h,count,speed,gas=true){
+  count=Math.max(8,Math.round(count*(window.FM_PERF_SCALE||1)));
   rounded(x,y,w,h,10,'rgba(7,19,32,.5)','#567690');
   for(let i=0;i<count;i++){
     const px=x+8+((i*73+simTime*speed*(i%3+1)*23)%(w-16));
