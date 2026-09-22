@@ -98,11 +98,11 @@ const coreBank=[
  {topic:'molecular-ke',type:'mcq',difficulty:3,q:'At the same temperature, two ideal gases have the same:',opts:['rms speed','molecular mass','mean translational KE per molecule','pressure in every container'],correct:2}
 ];
 const dataQuestions=[
- {topic:'spring',difficulty:3,q:'A T²–m graph has gradient 2.20 s² kg⁻¹. Calculate k.',answer:4*Math.PI*Math.PI/2.20,unit:'N m⁻¹',method:'k=4π²/gradient'},
- {topic:'pendulum',difficulty:3,q:'A T²–L graph has gradient 4.12 s² m⁻¹. Calculate g.',answer:4*Math.PI*Math.PI/4.12,unit:'m s⁻²',method:'g=4π²/gradient'},
- {topic:'specific-heat',difficulty:3,q:'A 60 W heater warms 0.50 kg by 18 K in 240 s. Ignore losses. Calculate c.',answer:60*240/(.5*18),unit:'J kg⁻¹ K⁻¹',method:'Pt=mcΔT'},
- {topic:'boylePractical',difficulty:3,q:'For a gas, p=150 kPa at V=56 cm³. Predict p at 42 cm³ if T is constant.',answer:150*56/42,unit:'kPa',method:'p₁V₁=p₂V₂'},
- {topic:'kinetic-assumptions',difficulty:4,q:'A gas has density 1.15 kg m⁻³ and rms speed 480 m s⁻¹. Calculate p.',answer:1.15*480*480/3,unit:'Pa',method:'p=(1/3)ρcᵣₘₛ²'}
+ {topic:'spring',type:'numeric',difficulty:3,q:'A T²–m graph has gradient 2.20 s² kg⁻¹. Calculate k.',answer:4*Math.PI*Math.PI/2.20,unit:'N m⁻¹',method:'k=4π²/gradient'},
+ {topic:'pendulum',type:'numeric',difficulty:3,q:'A T²–L graph has gradient 4.12 s² m⁻¹. Calculate g.',answer:4*Math.PI*Math.PI/4.12,unit:'m s⁻²',method:'g=4π²/gradient'},
+ {topic:'specific-heat',type:'numeric',difficulty:3,q:'A 60 W heater warms 0.50 kg by 18 K in 240 s. Ignore losses. Calculate c.',answer:60*240/(.5*18),unit:'J kg⁻¹ K⁻¹',method:'Pt=mcΔT'},
+ {topic:'boylePractical',type:'numeric',difficulty:3,q:'For a gas, p=150 kPa at V=56 cm³. Predict p at 42 cm³ if T is constant.',answer:150*56/42,unit:'kPa',method:'p₁V₁=p₂V₂'},
+ {topic:'kinetic-assumptions',type:'numeric',difficulty:4,q:'A gas has density 1.15 kg m⁻³ and rms speed 480 m s⁻¹. Calculate p.',answer:1.15*480*480/3,unit:'Pa',method:'p=(1/3)ρcᵣₘₛ²'}
 ];
 function diagnose(user,ans){
  const ratio=Math.abs(user/ans);
@@ -298,7 +298,7 @@ function renderCompare(){
  const key=ctrl.k,base=s.values[key],min=ctrl.min,max=ctrl.max,step=ctrl.step,body=$('#simWorkspaceBody');
  body.innerHTML=`<div class="workspace-grid"><article class="workspace-card"><span class="eyebrow">Setup A</span><h3>${safe(s.title)}</h3><canvas id="compareCanvasA" class="compare-canvas"></canvas><label class="field"><span>${safe(ctrl.label)}</span><input id="compareA" type="range" min="${min}" max="${max}" step="${step}" value="${base}"><output id="compareAOut">${base}</output></label><div id="compareAStats"></div></article><article class="workspace-card"><span class="eyebrow">Setup B</span><h3>Change one variable</h3><canvas id="compareCanvasB" class="compare-canvas"></canvas><label class="field"><span>${safe(ctrl.label)}</span><input id="compareB" type="range" min="${min}" max="${max}" step="${step}" value="${Math.min(max,base+step*2)}"><output id="compareBOut"></output></label><div id="compareBStats"></div></article></div>`;
  let raf=0;
- function update(){const av=+$('#compareA').value,bv=+$('#compareB').value;$('#compareAOut').textContent=av;$('#compareBOut').textContent=bv;const va={...s.values,[key]:av},vb={...s.values,[key]:bv};$('#compareAStats').innerHTML=compareStats(s.id,va);$('#compareBStats').innerHTML=compareStats(s.id,vb);cancelAnimationFrame(raf);const start=performance.now();function frame(t){drawCompareCanvas($('#compareCanvasA'),s.id,va,(t-start)/1000);drawCompareCanvas($('#compareCanvasB'),s.id,vb,(t-start)/1000);raf=requestAnimationFrame(frame)}raf=requestAnimationFrame(frame)}
+ function update(){const av=+$('#compareA').value,bv=+$('#compareB').value;$('#compareAOut').textContent=av;$('#compareBOut').textContent=bv;const va={...s.values,[key]:av},vb={...s.values,[key]:bv};$('#compareAStats').innerHTML=compareStats(s.id,va);$('#compareBStats').innerHTML=compareStats(s.id,vb);cancelAnimationFrame(raf);const start=performance.now();function frame(t){const ca=$('#compareCanvasA'),cb=$('#compareCanvasB');if(!ca||!cb||!ca.isConnected||!cb.isConnected)return;drawCompareCanvas(ca,s.id,va,(t-start)/1000);drawCompareCanvas(cb,s.id,vb,(t-start)/1000);raf=requestAnimationFrame(frame)}raf=requestAnimationFrame(frame)}
  $('#compareA').oninput=update;$('#compareB').oninput=update;update();
 }
 function drawCompareCanvas(c,id,v,t){
