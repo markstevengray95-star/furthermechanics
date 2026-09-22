@@ -222,7 +222,7 @@ window.FM_DATA = {
         ["Free vibration","A system displaced and released oscillates at its natural frequency, subject to damping."],
         ["Forced vibration","A periodic external force drives the system. In steady conditions the response follows the driving frequency."],
         ["Resonance","When driving frequency is close to natural frequency, energy transfer is especially effective and response amplitude becomes large."],
-        ["Damping and sharpness","Greater damping reduces the peak response and broadens the resonance curve. AQA expects examples in mechanical systems and stationary-wave situations."]
+        ["Damping and sharpness","Greater damping reduces the peak response and broadens the resonance curve. Mechanical examples include suspension systems, bridges and driven oscillators. Stationary-wave examples include strings and air columns, where resonance occurs when the driving frequency matches an allowed natural mode."]
       ],
       worked:{q:"A system's natural frequency is 3.2 Hz. Where should the largest response occur when damping is small?",steps:["Resonance occurs when driving frequency ≈ natural frequency.","Largest response is therefore near 3.2 Hz."]},
       activity:"Give one situation where resonance is useful and one where it could be undesirable. Explain the role of damping.",
@@ -306,11 +306,11 @@ window.FM_DATA = {
       teach:[
         ["Definition","Specific latent heat l is the energy required per kilogram to change state without a temperature change."],
         ["Particle explanation","During a phase change, supplied energy changes the particle potential-energy arrangement rather than increasing average kinetic energy, so temperature remains constant for a pure substance at constant pressure."],
-        ["Heating curve","Sloping regions show temperature rise within one phase. Flat regions show a change of state while energy continues to be supplied."],
+        ["Heating curve","Sloping regions show temperature rise within one phase. Flat regions show a change of state while energy continues to be supplied. AQA also highlights using a data logger and temperature sensor to record temperature against time while energy is supplied at a constant rate."],
         ["Calculation","Q = ml. Different phase changes have different latent heats, e.g. fusion and vaporisation."]
       ],
       worked:{q:"How much energy is required to melt 0.25 kg of a material with lf = 2.1×10⁵ J kg⁻¹?",steps:["Q = ml","Q = 0.25 × 2.1×10⁵ = 5.25×10⁴ J"]},
-      activity:"Sketch a heating curve from solid to gas and annotate where kinetic and potential-energy contributions change.",
+      activity:"Sketch a heating curve from solid to gas and annotate where kinetic and potential-energy contributions change. Then describe how a temperature sensor and data logger could collect the same curve when heating at constant power.",
       mission:{goal:"Link plateaus to particle energy changes.",steps:["Run the heating curve.","Pause on a sloped region and a plateau.","Compare particle speed and arrangement."],record:"Note temperature behaviour and energy destination.",conclusion:"Explain why a plateau does not mean 'no energy is being transferred'."},
       check:["During melting at constant temperature, supplied energy mainly increases…",["mean kinetic energy","particle potential-energy contribution","mass","specific heat capacity"],1,"The state changes while temperature stays constant."],
       examTip:"If a multi-stage problem includes heating and a phase change, calculate each energy contribution separately and add them.",
