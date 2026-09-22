@@ -1,46 +1,39 @@
-# AQA Further Mechanics Learning Lab
+# AQA Further Mechanics & Thermal Physics Learning Lab
 
-Interactive AQA A-level Physics 7408 learning app for **Section 3.6.1 Periodic Motion (Further Mechanics)**.
+Interactive teaching and revision app for **AQA A-level Physics 7408 Section 3.6**.
 
-## Built to match the Mechanics app
-This project reuses the same visual system and navigation pattern as the `mechanics` repository, with a separate Further Mechanics curriculum and simulations.
+## Specification coverage
 
-## Coverage
-- 3.6.1.1 Circular motion
-  - radians and angular speed
-  - linear/angular speed
-  - centripetal acceleration
-  - centripetal force
-- 3.6.1.2 Simple harmonic motion
-  - SHM condition and defining equation
-  - displacement, velocity and acceleration
-  - phase relationships
-  - maximum speed and acceleration
-- 3.6.1.3 Simple harmonic systems
-  - mass-spring systems
-  - simple pendulum
-  - energy in SHM
-  - damping
-  - Required Practical 7
-- 3.6.1.4 Forced vibrations and resonance
+### 3.6.1 Periodic motion — Paper 1
+- Circular motion: radians, angular speed, tangential speed, centripetal acceleration and centripetal force
+- Simple harmonic motion: defining condition, x/v/a graphs, phase, maximum speed and acceleration
+- Simple harmonic systems: mass–spring, simple pendulum, energy and damping
+- Free/forced vibrations and resonance
+- Required Practical 7
 
-## Student features
-- 11 sequenced lessons
-- retrieval starters, objectives, teaching chunks, worked examples, activities, checks and exit tickets
-- 6 interactive canvas simulations
-- 12-item Formula Coach
-- RP7 virtual mass-spring and pendulum investigations with generated data and graphs
-- 20-question exam-practice mode
-- AQA specification checklist
-- local progress saving
-- responsive/mobile layout
-- offline/PWA support
+### 3.6.2 Thermal physics — Paper 2
+- Internal energy and qualitative first-law ideas
+- Specific heat capacity, electrical heating and continuous-flow calculations
+- Changes of state, latent heat and heating curves
+- Gas laws and absolute zero
+- Ideal-gas equations pV=nRT and pV=NkT
+- Avogadro constant, molar gas constant, Boltzmann constant, molar/molecular mass
+- Required Practical 8: Boyle's law and Charles's law
+- Brownian motion and molecular explanations of gas laws
+- Kinetic-theory assumptions and pressure derivation
+- Mean molecular kinetic energy and monatomic ideal-gas internal energy
 
-## Run locally
-Open `index.html` directly, or run:
+## Learning design
+- 24 sequenced lessons
+- retrieval → objectives → detailed teaching → worked example → student activity → linked simulation mission → check → exit ticket
+- 17 interactive canvas models with mouse/touch controls
+- snapshot/readout capture for simulation investigations
+- 25 Formula Coach calculations
+- RP7 and RP8 virtual practicals with generated data and graphs
+- mixed exam-practice mode and specification checklist
+- local progress saving and offline/PWA support
 
-```bash
-npm start
-```
+## Run
+Open `index.html` or run `npm start`.
 
-The app is static and can be deployed directly to GitHub Pages, Vercel or Netlify.
+The project is static and can be deployed to Vercel, Netlify or another static host.
