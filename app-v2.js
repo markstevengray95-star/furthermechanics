@@ -3,6 +3,7 @@
 
 const DATA = window.FM_DATA;
 const DETAIL = window.FM_DETAIL || {};
+const CALC = window.FM_CALC || {};
 if (!DATA) throw new Error('FM_DATA did not load.');
 
 const $ = (s,r=document)=>r.querySelector(s);
@@ -68,38 +69,45 @@ function qaList(items){
 }
 function renderLesson(){
   const l=lessons[activeLesson], c=l.check, d=DETAIL[l.id]||{};
+  const calc=CALC[l.id]||{equations:[],strategy:[],practice:[]};
   const teaching=l.teach.map(s=>'<div class="teach-section"><h3>'+s[0]+'</h3><p>'+s[1]+'</p></div>').join('');
   const deepDive=(d.deepDive||[]).map(s=>'<div class="deep-card"><h3>'+s[0]+'</h3><p>'+s[1]+'</p></div>').join('');
   const maths=(d.maths||[]).map(x=>'<li>'+x+'</li>').join('');
   const graphs=(d.graphs||[]).map(x=>'<li>'+x+'</li>').join('');
   const mastery=(d.mustBeAble||[]).map(x=>'<li>'+x+'</li>').join('');
   const ext=d.extendedExample||null;
+  const equationCards=(calc.equations||[]).map((e,i)=>'<article class="equation-card"><div class="equation-card-head"><span class="data-badge">Equation '+(i+1)+'</span><span class="equation-source">'+e.sheet+'</span></div><h3>'+e.name+'</h3><div class="big-equation">'+e.eq+'</div><p>'+e.meaning+'</p><dl><div><dt>Symbols</dt><dd>'+e.symbols+'</dd></div><div><dt>Units</dt><dd>'+e.units+'</dd></div><div><dt>Rearrange</dt><dd>'+e.rearrange+'</dd></div><div><dt>Use when</dt><dd>'+e.conditions+'</dd></div></dl></article>').join('');
+  const calcStrategy=(calc.strategy||[]).map((x,i)=>'<li><strong>Step '+(i+1)+':</strong> '+x+'</li>').join('');
+  const calcPractice=(calc.practice||[]).map((p,i)=>'<div class="calc-practice"><div class="calc-q"><span class="data-badge">Practice '+(i+1)+'</span><p><strong>'+p.q+'</strong></p><textarea class="student-answer compact-answer" placeholder="Try the calculation before revealing the method..."></textarea><button class="text-button" data-calc-reveal="'+i+'">Show worked answer</button></div><div class="calc-solution" data-calc-solution="'+i+'"><ol>'+p.steps.map(s=>'<li>'+s+'</li>').join('')+'</ol><div class="calc-final">Answer: '+p.ans+'</div></div></div>').join('');
   const extendedWorked=ext?'<div class="lesson-block worked-block extended-worked"><h3>Extended worked example</h3><p><strong>'+ext.q+'</strong></p><ol>'+ext.steps.map(x=>'<li>'+x+'</li>').join('')+'</ol></div>':'';
   $('#lessonPanel').innerHTML=
     '<div class="lesson-meta"><span class="eyebrow">AQA '+l.code+'</span><span class="data-badge">'+l.paper+'</span></div>'+
     '<h2>'+l.title+'</h2><p class="lesson-lead">'+l.lead+'</p>'+
     '<div class="keyword-row">'+l.keywords.map(x=>'<span class="keyword-chip">'+x+'</span>').join('')+'</div>'+
     '<div class="formula-row">'+l.formulas.map(f=>'<span class="formula-chip">'+f+'</span>').join('')+'</div>'+
-    '<div class="chunk-strip">'+['Retrieval','Objectives','Teach','Deep dive','Maths & graphs','Worked','Activity','Simulation','Exam mastery','Check','Exit'].map(chunkButton).join('')+'</div>'+
+    '<div class="chunk-strip">'+['Retrieval','Objectives','Teach','Deep dive','Equations','Maths & graphs','Worked','Calculation practice','Activity','Simulation','Exam mastery','Check','Exit'].map(chunkButton).join('')+'</div>'+
     '<section class="chunk active" data-chunk="0"><div class="lesson-block"><h3>Retrieval starter</h3>'+qaList(l.retrieval)+'</div></section>'+
     '<section class="chunk" data-chunk="1"><div class="lesson-grid"><div class="lesson-block remember"><h3>Learning objectives</h3><ul>'+l.objectives.map(x=>'<li>'+x+'</li>').join('')+'</ul></div>'+
       '<div class="lesson-block warning"><h3>Common misconception</h3><p>'+l.misconception+'</p></div></div></section>'+
     '<section class="chunk" data-chunk="2"><div class="teaching-stack">'+teaching+'</div><div class="lesson-block exam-box"><h3>AQA exam tip</h3><p>'+l.examTip+'</p></div></section>'+
     '<section class="chunk" data-chunk="3"><div class="deep-grid">'+deepDive+'</div></section>'+
-    '<section class="chunk" data-chunk="4"><div class="lesson-grid"><div class="lesson-block maths-block"><h3>Maths you must be able to do</h3><ul>'+maths+'</ul></div><div class="lesson-block graph-block"><h3>Graphs and data interpretation</h3><ul>'+graphs+'</ul></div></div></section>'+
-    '<section class="chunk" data-chunk="5"><div class="lesson-block worked-block"><h3>Core worked example</h3><p><strong>'+l.worked.q+'</strong></p><ol>'+l.worked.steps.map(x=>'<li>'+x+'</li>').join('')+'</ol></div>'+extendedWorked+'</section>'+
-    '<section class="chunk" data-chunk="6"><div class="lesson-block"><h3>Student activity</h3><p>'+l.activity+'</p><textarea class="student-answer" placeholder="Write your working, graph reasoning or explanation here..."></textarea></div></section>'+
-    '<section class="chunk" data-chunk="7"><div class="lesson-block mission-inline"><span class="eyebrow">Linked simulation mission</span><h3>'+l.mission.goal+'</h3><ol>'+l.mission.steps.map(x=>'<li>'+x+'</li>').join('')+'</ol><p><strong>Record:</strong> '+l.mission.record+'</p><p><strong>Conclude:</strong> '+l.mission.conclusion+'</p><button class="button primary" id="openLessonSim">Open '+simDefinitions[l.sim].title+'</button></div></section>'+
-    '<section class="chunk" data-chunk="8"><div class="lesson-grid"><div class="lesson-block remember"><h3>By the end, you must be able to…</h3><ul class="mastery-list">'+mastery+'</ul></div><div class="lesson-block exam-box"><h3>Exam language</h3><p>'+l.examTip+'</p><p><strong>Avoid:</strong> '+l.misconception+'</p></div></div><div class="self-check"><label><input type="checkbox"> I can define the key quantities accurately.</label><label><input type="checkbox"> I can use the equations with correct units.</label><label><input type="checkbox"> I can interpret the key graph/data relationship.</label><label><input type="checkbox"> I can explain the physics in full sentences.</label></div></section>'+
-    '<section class="chunk" data-chunk="9"><div class="mini-question"><p><strong>'+c[0]+'</strong></p><div class="mini-options">'+c[1].map((x,i)=>'<button class="mini-option" data-mini="'+i+'">'+x+'</button>').join('')+'</div><div class="answer-reveal" id="miniExplain">'+c[3]+'</div></div></section>'+
-    '<section class="chunk" data-chunk="10"><div class="lesson-block remember"><h3>Exit ticket</h3><p>'+l.exit+'</p><textarea class="student-answer" placeholder="Write a complete A-level answer..."></textarea></div></section>'+
+    '<section class="chunk" data-chunk="4"><div class="equation-intro"><h3>Equation and calculation guide</h3><p>Know what each equation means, what every symbol represents, the units, how to rearrange it and the conditions under which it is valid.</p></div><div class="equation-card-grid">'+equationCards+'</div><div class="lesson-block calc-strategy"><h3>Calculation method</h3><ol>'+calcStrategy+'</ol></div></section>'+
+    '<section class="chunk" data-chunk="5"><div class="lesson-grid"><div class="lesson-block maths-block"><h3>Maths you must be able to do</h3><ul>'+maths+'</ul></div><div class="lesson-block graph-block"><h3>Graphs and data interpretation</h3><ul>'+graphs+'</ul></div></div></section>'+
+    '<section class="chunk" data-chunk="6"><div class="lesson-block worked-block"><h3>Core worked example</h3><p><strong>'+l.worked.q+'</strong></p><ol>'+l.worked.steps.map(x=>'<li>'+x+'</li>').join('')+'</ol></div>'+extendedWorked+'</section>'+
+    '<section class="chunk" data-chunk="7"><div class="lesson-block"><h3>Calculation practice</h3><p class="muted">Attempt each problem first. Then reveal the method and compare your equation choice, substitutions, units and final answer.</p>'+calcPractice+'</div></section>'+
+    '<section class="chunk" data-chunk="8"><div class="lesson-block"><h3>Student activity</h3><p>'+l.activity+'</p><textarea class="student-answer" placeholder="Write your working, graph reasoning or explanation here..."></textarea></div></section>'+
+    '<section class="chunk" data-chunk="9"><div class="lesson-block mission-inline"><span class="eyebrow">Linked simulation mission</span><h3>'+l.mission.goal+'</h3><ol>'+l.mission.steps.map(x=>'<li>'+x+'</li>').join('')+'</ol><p><strong>Record:</strong> '+l.mission.record+'</p><p><strong>Conclude:</strong> '+l.mission.conclusion+'</p><button class="button primary" id="openLessonSim">Open '+simDefinitions[l.sim].title+'</button></div></section>'+
+    '<section class="chunk" data-chunk="10"><div class="lesson-grid"><div class="lesson-block remember"><h3>By the end, you must be able to…</h3><ul class="mastery-list">'+mastery+'</ul></div><div class="lesson-block exam-box"><h3>Exam language</h3><p>'+l.examTip+'</p><p><strong>Avoid:</strong> '+l.misconception+'</p></div></div><div class="self-check"><label><input type="checkbox"> I can define the key quantities accurately.</label><label><input type="checkbox"> I can use the equations with correct units.</label><label><input type="checkbox"> I can interpret the key graph/data relationship.</label><label><input type="checkbox"> I can explain the physics in full sentences.</label></div></section>'+
+    '<section class="chunk" data-chunk="11"><div class="mini-question"><p><strong>'+c[0]+'</strong></p><div class="mini-options">'+c[1].map((x,i)=>'<button class="mini-option" data-mini="'+i+'">'+x+'</button>').join('')+'</div><div class="answer-reveal" id="miniExplain">'+c[3]+'</div></div></section>'+
+    '<section class="chunk" data-chunk="12"><div class="lesson-block remember"><h3>Exit ticket</h3><p>'+l.exit+'</p><textarea class="student-answer" placeholder="Write a complete A-level answer..."></textarea></div></section>'+
     '<div class="lesson-actions"><button class="button primary" id="completeLesson">'+(completed.has(l.id)?'✓ Lesson complete':'Mark lesson complete')+'</button><button class="button" id="prevLesson">Previous</button><button class="button" id="nextLesson">Next lesson</button></div>';
 
   $$('[data-chunk-button]').forEach(b=>b.addEventListener('click',()=>{
     $$('[data-chunk-button]').forEach(x=>x.classList.toggle('active',x===b));
     $$('[data-chunk]').forEach(x=>x.classList.toggle('active',x.dataset.chunk===b.dataset.chunkButton));
   }));
-  $$('[data-reveal]').forEach(b=>b.addEventListener('click',()=>b.nextElementSibling.classList.toggle('visible')));
+  $('[data-reveal]').forEach(b=>b.addEventListener('click',()=>b.nextElementSibling.classList.toggle('visible')));
+  $('[data-calc-reveal]').forEach(b=>b.addEventListener('click',()=>{const sol=$('[data-calc-solution="'+b.dataset.calcReveal+'"]');sol.classList.toggle('visible');b.textContent=sol.classList.contains('visible')?'Hide worked answer':'Show worked answer';}));
   $$('[data-mini]').forEach(b=>b.addEventListener('click',()=>{
     const i=Number(b.dataset.mini);$$('[data-mini]').forEach(x=>x.disabled=true);
     b.classList.add(i===c[2]?'correct':'wrong');$$('[data-mini]')[c[2]].classList.add('correct');$('#miniExplain').classList.add('visible');
