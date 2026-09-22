@@ -577,6 +577,14 @@ $('#clearBoyleData').addEventListener('click',()=>{boyleData=[];renderBoyle();})
 $('#takeCharlesReading').addEventListener('click',()=>{const T=+$('#charlesTemp').value,p=+$('#charlesPressure').value,V=70*(T/300)*(101/p)*(1+(Math.random()-.5)*.008);charlesData.push({T,p,V});renderCharles();});
 $('#clearCharlesData').addEventListener('click',()=>{charlesData=[];renderCharles();});
 
+window.FM_APP={
+  openView:openView,
+  openLessonById:function(id){var i=lessons.findIndex(function(l){return l.id===id});if(i>=0){activeLesson=i;courseFilter='all';renderCourseFilterButtons();renderCourseList();renderLesson();openView('course');}},
+  openFormula:function(){openView('formula');},
+  openExam:function(){openView('exam');},
+  getProgress:function(){return{completed:Array.from(completed),activeLesson:lessons[activeLesson]&&lessons[activeLesson].id};}
+};
+
 /* Initialise */
 renderCourseFilterButtons();renderCourseList();renderLesson();saveProgress();renderSim();renderMission();renderFormula();renderQuiz();renderSpec();updatePracticalOutputs();renderSpring();renderPend();renderBoyle();renderCharles();
 if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));}
