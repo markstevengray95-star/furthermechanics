@@ -448,7 +448,7 @@ function drawSim(){
     ctx.save();ctx.shadowBlur=22;ctx.shadowColor='rgba(103,199,255,.25)';ctx.strokeStyle='#4f7a98';ctx.lineWidth=4;ctx.beginPath();ctx.arc(cx,cy,Rp,0,TAU);ctx.stroke();ctx.restore();
     ctx.strokeStyle='rgba(160,200,230,.35)';ctx.lineWidth=2;ctx.setLineDash([6,6]);ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(x,y);ctx.stroke();ctx.setLineDash([]);
     glowDot(cx,cy,8,'#8aa7bd');addTrail('circular',x,y,'rgba(255,213,106,.55)');glowDot(x,y,14,'#ffd56a');
-    const tx=-Math.sin(ang),ty=Math.cos(ang);if(simVisual.vectors){arrow(x,y,x+tx*95,y+ty*95,'v','#63d9a4');arrow(x,y,x+(cx-x)*.62,y+(cy-y)*.62,'a / F','#ff7b87');}
+    const tx=-Math.sin(ang),ty=Math.cos(ang),speed=v.omega*v.radius,aMag=v.omega*v.omega*v.radius,dx=cx-x,dy=cy-y,dr=Math.hypot(dx,dy)||1,vLen=clamp(speed*22,30,130),aLen=clamp(aMag*15,30,130);if(simVisual.vectors){arrow(x,y,x+tx*vLen,y+ty*vLen,simVisual.labels?'v '+fmt(speed)+' m s⁻¹':'','#63d9a4');arrow(x,y,x+dx/dr*aLen,y+dy/dr*aLen,simVisual.labels?'a '+fmt(aMag)+' m s⁻²':'','#ff7b87');}
     drawRuler(cx,cy+24,x, y+24,'r = '+v.radius.toFixed(2)+' m');
     labelPill(16,h-42,'ω = '+v.omega.toFixed(2)+' rad s⁻¹','#ffd56a');
   } else if(activeSim==='shm'){
