@@ -57,7 +57,10 @@
     <button class="nav-button" data-view="mastery">Mastery Hub</button>
     <button class="nav-button" data-view="spec">AQA Map</button>
   </nav>
-  <div class="assignment-import-bar panel" id="assignmentImport"></div>
+  <details class="assignment-shell panel">
+    <summary>Teacher assignment code <span class="muted">optional</span></summary>
+    <div id="assignmentImport"></div>
+  </details>
 
   <section class="view active-view" id="view-course">
     <div class="section-head">
@@ -96,6 +99,12 @@
           <button class="button" id="resetSim">Reset</button>
           <button class="button" id="slowMotion">Slow motion</button>
           <button class="button" id="snapshotSim">Capture reading</button>
+        </div>
+        <div class="sim-visual-tools panel">
+          <span class="small"><strong>Learning overlays</strong></span>
+          <label><input type="checkbox" id="showLabels" checked> labels</label>
+          <label><input type="checkbox" id="showVectors" checked> vectors</label>
+          <label><input type="checkbox" id="showTrails" checked> motion trails</label>
         </div>
         <div id="snapshotTray" class="snapshot-tray"></div>
         <p class="model-note">Models are schematic and deliberately rescaled for learning. Numerical readouts are intended to preserve the displayed physical relationships.</p>
