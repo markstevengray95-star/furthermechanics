@@ -50,14 +50,14 @@
     </aside>
   </section>
 
-  <nav class="main-nav" aria-label="Main navigation">
-    <button class="nav-button active" data-view="course">Guided course</button>
-    <button class="nav-button" data-view="lab">Simulation lab</button>
-    <button class="nav-button" data-view="formula">Formula coach</button>
-    <button class="nav-button" data-view="practical">Required practicals 7 & 8</button>
-    <button class="nav-button" data-view="exam">Exam practice</button>
-    <button class="nav-button" data-view="spec">AQA checklist</button>
+  <nav class="main-nav compact-nav" aria-label="Main navigation">
+    <button class="nav-button active" data-view="course">Learn</button>
+    <button class="nav-button" data-view="lab">Simulations</button>
+    <button class="nav-button" data-view="practical">Practicals</button>
+    <button class="nav-button" data-view="mastery">Mastery Hub</button>
+    <button class="nav-button" data-view="spec">AQA Map</button>
   </nav>
+  <div class="assignment-import-bar panel" id="assignmentImport"></div>
 
   <section class="view active-view" id="view-course">
     <div class="section-head">
@@ -260,6 +260,10 @@
     </div>
   </section>
 
+  <section class="view" id="view-mastery">
+    <div id="masteryHost"></div>
+  </section>
+
   <section class="view" id="view-spec">
     <div class="section-head">
       <div><span class="eyebrow">Specification coverage</span><h2>AQA 7408 section 3.6 checklist</h2></div>
@@ -273,6 +277,10 @@
 <script src="content-v2.js?v=3"></script>
 <script src="lesson-detail-v3.js?v=4"></script>
 <script src="calculation-detail-v4.js?v=4"></script>
-<script src="app-v2.js?v=4"></script>
+<script src="app-v2.js?v=5"></script>
+<script src="mastery-core-v5.js?v=5"></script>
+<script src="mastery-practice-v5.js?v=5"></script>
+<script src="mastery-data-v5.js?v=5"></script>
+<script src="mastery-teacher-v5.js?v=5"></script>
 </body>
 </html>
