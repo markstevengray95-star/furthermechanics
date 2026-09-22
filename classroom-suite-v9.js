@@ -232,7 +232,7 @@ function renderPapers(){
 function paperTopicMatch(item,filter){if(filter==='all')return true;const l=DATA.lessons.find(x=>x.id===item.topic);return filter==='mechanics'?l?.code?.startsWith('3.6.1'):l?.code?.startsWith('3.6.2')}
 function makePaper(filter,count,diff){
  let bank=[...coreBank,...lessonBank(),...calcItems(),...dataQuestions].filter(q=>paperTopicMatch(q,filter)&&q.difficulty<=diff).sort(()=>Math.random()-.5).slice(0,count);suite.paperCounter++;saveSuite();
- const html=`<div class="paper-print"><h1>AQA 3.6 Further Mechanics & Thermal Physics</h1><p>Custom practice paper ${suite.paperCounter}</p>${bank.map((q,i)=>`<section><h3>${i+1}. ${safe(q.q)}</h3><div class="answer-lines"></div></section>`).join('')}<hr><h2>Answer / marking guide</h2>${bank.map((q,i)=>`<p><strong>${i+1}.</strong> ${q.type==='mcq'?safe(q.opts[q.correct]):safe(q.answerText||`${fmt(q.answer)} ${q.unit||''}`)}</p>`).join('')}</div>`;
+ const html=`<div class="paper-print"><h1>AQA 3.6 Further Mechanics & Thermal Physics</h1><p>Custom practice paper ${suite.paperCounter}</p>${bank.map((q,i)=>`<section><h3>${i+1}. ${safe(q.q)}</h3>${q.type==='mcq'?`<ol type="A">${q.opts.map(o=>`<li>${safe(o)}</li>`).join('')}</ol>`:''}<div class="answer-lines"></div></section>`).join('')}<hr><h2>Answer / marking guide</h2>${bank.map((q,i)=>`<p><strong>${i+1}.</strong> ${q.type==='mcq'?safe(q.opts[q.correct]):safe(q.answerText||`${fmt(q.answer)} ${q.unit||''}`)}</p>`).join('')}</div>`;
  openPrint(html);
 }
 function printWorksheet(id,practical){
