@@ -5,10 +5,13 @@ const CALC=window.FM_CALC||{};
 function loadStyle(href,id){if(document.getElementById(id)||document.querySelector('link[href*="'+href.split('?')[0]+'"]'))return;const l=document.createElement('link');l.id=id;l.rel='stylesheet';l.href=href;document.head.appendChild(l)}
 function loadScript(src,id,done){const existing=document.getElementById(id)||document.querySelector('script[src*="'+src.split('?')[0]+'"]');if(existing){if(done)setTimeout(done,0);return}const s=document.createElement('script');s.id=id;s.src=src;s.onload=()=>done&&done();s.onerror=()=>console.error('Failed to load '+src);document.body.appendChild(s)}
 function loadLearningLayers(){
- loadStyle('textbook-full-v12.css?v=14','fullTextbookCssV14');
- loadStyle('equation-breakdown-v14.css?v=14','equationBreakdownCssV14');
- loadStyle('extended-response-hub-v14.css?v=14','extendedResponseCssV14');
- loadScript('textbook-full-v12.js?v=14','fullTextbookJsV14',()=>loadScript('equation-breakdown-v14.js?v=14','equationBreakdownJsV14',()=>loadScript('extended-response-hub-v14.js?v=14','extendedResponseJsV14')));
+ loadStyle('textbook-full-v12.css?v=15','fullTextbookCssV15');
+ loadStyle('equation-breakdown-v14.css?v=15','equationBreakdownCssV15');
+ loadStyle('extended-response-hub-v14.css?v=15','extendedResponseCssV15');
+ loadStyle('lesson-depth-v15.css?v=15','lessonDepthCssV15');
+ loadStyle('simulation-3d-v15.css?v=15','simulation3dCssV15');
+ loadScript('simulation-3d-v15.js?v=15','simulation3dJsV15');
+ loadScript('textbook-full-v12.js?v=15','fullTextbookJsV15',()=>loadScript('lesson-depth-v15.js?v=15','lessonDepthJsV15',()=>loadScript('equation-breakdown-v14.js?v=15','equationBreakdownJsV15',()=>loadScript('extended-response-hub-v14.js?v=15','extendedResponseJsV15'))));
 }
 function installDeduper(){if(!window.FM_MASTERY||window.FM_MASTERY.__extendedDeduped)return;const original=window.FM_MASTERY.result;let last={topic:null,label:null,time:0};window.FM_MASTERY.result=function(skill,topic,ok,label,xp){const now=Date.now();if(label==='extended response'&&last.topic===topic&&last.label===label&&now-last.time<300)return;last={topic,label,time:now};return original(skill,topic,ok,label,xp)};window.FM_MASTERY.__extendedDeduped=true}
 function currentLesson(){return window.FM_APP?.getProgress?.().activeLesson}
